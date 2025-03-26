@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --warning-color: #FFA500;
+            --danger-color: #FF4444;
+            --success-color: #4CAF50;
+            --background-color: #f5f5f5;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .income-vs-expenses {
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+
+        .income-vs-expenses.positive {
+            color: var(--success-color);
+        }
+
+        .income-vs-expenses.negative {
+            color: var(--danger-color);
+        }
+
+        .income-vs-expenses.warning {
+            color: var(--warning-color);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background-color: var(--card-background);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            color: black;
+        }
+
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .section {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-good { background-color: var(--success-color); }
+        .status-warning { background-color: var(--warning-color); }
+        .status-danger { background-color: var(--danger-color); }
+
+        .collapsible {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: none;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .collapsible:hover {
+            background-color: #e9ecef;
+        }
+
+        .content {
+            display: none;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-top: none;
+        }
+
+        .content.show {
+            display: block;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-background);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-value.negative {
+            color: var(--danger-color);
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .export-buttons button {
+            flex: 1;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.error {
+            background-color: var(--danger-color);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state p {
+            margin: 10px 0;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+        }
+
+        .quick-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .quick-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quick-stat .status-indicator {
+            width: 8px;
+            height: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Budget Tracker</h1>
+            <div class="header-info">
+                <div id="monthDisplay"></div>
+                <div id="incomeVsExpenses" class="income-vs-expenses"></div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="showTab('income')">Income</button>
+            <button class="tab" onclick="showTab('expenses')">Expenses</button>
+            <button class="tab" onclick="showTab('savings')">Savings</button>
+            <button class="tab" onclick="showTab('discretionary')">Discretionary</button>
+        </div>
+
+        <div id="toast" class="toast"></div>
+
+        <div id="dashboard" class="section">
+            <h2>Monthly Overview</h2>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Total Income</h3>
+                    <div class="stat-value" id="totalIncome">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Fixed Expenses</h3>
+                    <div class="stat-value" id="totalFixedExpenses">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Savings</h3>
+                    <div class="stat-value" id="totalSavings">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Investments</h3>
+                    <div class="stat-value" id="totalInvestments">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Discretionary</h3>
+                    <div class="stat-value" id="totalDiscretionary">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Gas</h3>
+                    <div class="stat-value" id="totalGas">$0.00</div>
+                </div>
+            </div>
+            <div class="export-buttons">
+                <button onclick="exportToCSV()">Export to CSV</button>
+                <button onclick="resetData()">Reset Data</button>
+            </div>
+        </div>
+
+        <div id="income" class="section" style="display: none;">
+            <div class="section-title">
+                <h2>Income</h2>
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <span class="status-indicator status-good"></span>
+                        Total: $0.00
+                    </div>
+                </div>
+            </div>
+            <form id="incomeForm" onsubmit="addIncome(event)">
+                <div class="form-group">
+                    <label for="paycheckAmount">Amount</label>
+                    <input type="number" id="paycheckAmount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="paycheckDate">Date</label>
+                    <input type="date" id="paycheckDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="incomeDescription">Description (Optional)</label>
+                    <input type="text" id="incomeDescription" placeholder="e.g., Regular Paycheck">
+                </div>
+                <button type="submit">Add Income</button>
+            </form>
+            <table id="incomeTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="expenses" class="section" style="display: none;">
+            <div class="section-title">
+                <h2>Fixed Expenses</h2>
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <span class="status-indicator status-warning"></span>
+                        Total: $0.00
+                    </div>
+                </div>
+            </div>
+            <form id="expenseForm" onsubmit="addFixedExpense(event)">
+                <div class="form-group">
+                    <label for="expenseName">Expense Name</label>
+                    <input type="text" id="expenseName" required>
+                </div>
+                <div class="form-group">
+                    <label for="expenseAmount">Amount</label>
+                    <input type="number" id="expenseAmount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="expenseChargeDate">Charge Date (Day of Month)</label>
+                    <input type="number" id="expenseChargeDate" min="1" max="31" required>
+                </div>
+                <button type="submit">Add Expense</button>
+            </form>
+            <table id="expensesTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Charge Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="savings" class="section" style="display: none;">
+            <h2>Savings & Investments</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Add Savings Deposit</h3>
+                    <form id="savingsForm" onsubmit="addSavings(event)">
+                        <div class="form-group">
+                            <label for="savingsAmount">Amount</label>
+                            <input type="number" id="savingsAmount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="savingsDate">Date</label>
+                            <input type="date" id="savingsDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="savingsDescription">Description</label>
+                            <input type="text" id="savingsDescription" required placeholder="e.g., Monthly Savings">
+                        </div>
+                        <button type="submit">Add Savings</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h3>Add Investment</h3>
+                    <form id="investmentForm" onsubmit="addInvestment(event)">
+                        <div class="form-group">
+                            <label for="investmentAmount">Amount</label>
+                            <input type="number" id="investmentAmount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="investmentDate">Date</label>
+                            <input type="date" id="investmentDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="investmentDescription">Description</label>
+                            <input type="text" id="investmentDescription" required placeholder="e.g., Vanguard S&P 500">
+                        </div>
+                        <button type="submit">Add Investment</button>
+                    </form>
+                </div>
+            </div>
+            <div class="form-group" style="margin: 20px 0;">
+                <label for="savingsFilter">Filter Transactions:</label>
+                <select id="savingsFilter" onchange="filterSavingsTransactions()">
+                    <option value="all">All Transactions</option>
+                    <option value="savings">Savings Only</option>
+                    <option value="investments">Investments Only</option>
+                </select>
+            </div>
+            <table id="savingsTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="discretionary" class="section" style="display: none;">
+            <h2>Discretionary Spending & Gas</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Discretionary Budget</h3>
+                    <div class="budget-input">
+                        <label for="discretionaryBudget">Monthly Budget:</label>
+                        <input type="number" id="discretionaryBudget" step="0.01" min="0" value="0">
+                    </div>
+                    <form id="discretionaryForm" onsubmit="addDiscretionaryTransaction(event)">
+                        <div class="form-group">
+                            <label for="discretionaryAmount">Amount</label>
+                            <input type="number" id="discretionaryAmount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="discretionaryDescription">Description</label>
+                            <input type="text" id="discretionaryDescription" required>
+                        </div>
+                        <button type="submit">Add Transaction</button>
+                    </form>
+                    <div class="remaining-budget" id="remainingDiscretionaryBudget">Remaining: $0.00</div>
+                </div>
+                <div class="card">
+                    <h3>Gas Budget</h3>
+                    <div class="budget-input">
+                        <label for="gasBudget">Monthly Budget:</label>
+                        <input type="number" id="gasBudget" step="0.01" min="0" value="0">
+                    </div>
+                    <form id="gasForm" onsubmit="addGasTransaction(event)">
+                        <div class="form-group">
+                            <label for="gasAmount">Amount</label>
+                            <input type="number" id="gasAmount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gasDescription">Description</label>
+                            <input type="text" id="gasDescription" required>
+                        </div>
+                        <button type="submit">Add Transaction</button>
+                    </form>
+                    <div class="remaining-budget" id="remainingGasBudget">Remaining: $0.00</div>
+                </div>
+            </div>
+            <div class="form-group" style="margin: 20px 0;">
+                <label for="transactionFilter">Filter Transactions:</label>
+                <select id="transactionFilter" onchange="filterTransactions()">
+                    <option value="all">All Transactions</option>
+                    <option value="discretionary">Discretionary Only</option>
+                    <option value="gas">Gas Only</option>
+                </select>
+            </div>
+            <table id="transactionsTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data structure
+        const defaultBudgetData = {
+            income: [],
+            fixedExpenses: [],
+            savings: {
+                deposits: [],
+                investments: []
+            },
+            discretionary: {
+                budget: 0,
+                transactions: []
+            },
+            gas: {
+                budget: 0,
+                transactions: []
+            },
+            lastReset: null
+        };
+
+        let budgetData = { ...defaultBudgetData };
+
+        // API functions
+        const API_BASE_URL = '/api';
+
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/budget-data`);
+                if (!response.ok) throw new Error('Failed to load data');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showToast('Error loading data. Please refresh the page.', 'error');
+                return defaultBudgetData;
+            }
+        }
+
+        async function saveData(data) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/budget-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+                if (!response.ok) throw new Error('Failed to save data');
+                return true;
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showToast('Error saving data. Please try again.', 'error');
+                return false;
+            }
+        }
+
+        async function addIncome(amount, date, description) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/income`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ amount, date, description }),
+                });
+                if (!response.ok) throw new Error('Failed to add income');
+                const data = await response.json();
+                showToast('Income added successfully!', 'success');
+                return data;
+            } catch (error) {
+                console.error('Error adding income:', error);
+                showToast('Error adding income. Please try again.', 'error');
+                return null;
+            }
+        }
+
+        // Update form submission handlers
+        document.getElementById('incomeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('paycheckAmount').value);
+            const date = document.getElementById('paycheckDate').value;
+            const description = document.getElementById('incomeDescription').value;
+
+            if (!validateNumber(amount)) {
+                showToast('Please enter a valid amount', 'error');
+                return;
+            }
+
+            const result = await addIncome(amount, date, description);
+            if (result) {
+                clearForm('incomeForm');
+                updateDashboard();
+            }
+        });
+
+        // ... similar updates for other form handlers ...
+
+        // Initialize the app
+        async function initApp() {
+            try {
+                const data = await loadData();
+                budgetData = data;
+                updateDashboard();
+                updateTables();
+                setDefaultDates();
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                showToast('Error initializing app. Please refresh the page.', 'error');
+            }
+        }
+
+        // Start the app
+        initApp();
+
+        // ... rest of the existing code ...
+    </script>
+</body>
+</html> 

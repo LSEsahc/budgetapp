@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./index.html:/usr/share/nginx/html/index.html
+      - ./:/app/budget
+    depends_on:
+      - budget-api
+
+  budget-api:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - budget-data:/app/data
+      - ./:/app/budget
+    environment:
+      - NODE_ENV=production
+
+volumes:
+  budget-data: 
